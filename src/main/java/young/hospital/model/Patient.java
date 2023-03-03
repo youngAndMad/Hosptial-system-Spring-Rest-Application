@@ -46,6 +46,9 @@ public class Patient {
     @Column(name = "added_at")
     private LocalDateTime addedAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @OneToMany(mappedBy = "patient" , orphanRemoval = true , fetch = FetchType.EAGER)
     @Cascade(org.hibernate.annotations.CascadeType.DELETE)
     private Set<Appointment> appointments;

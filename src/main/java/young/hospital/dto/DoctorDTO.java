@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import young.hospital.model.DoctorRole;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,4 +35,5 @@ public class DoctorDTO {
     private int experience;
 
     private String role;
+
 }

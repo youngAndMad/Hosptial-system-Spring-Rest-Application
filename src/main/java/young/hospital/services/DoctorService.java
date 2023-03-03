@@ -13,8 +13,8 @@ import java.util.List;
 public class DoctorService {
     private final DoctorRepository doctorRepository;
 
-    public void save(Doctor doctor){
-        doctorRepository.save(doctor);
+    public Doctor save(Doctor doctor){
+        return doctorRepository.save(doctor);
     }
 
     public List<Doctor> getAll(){

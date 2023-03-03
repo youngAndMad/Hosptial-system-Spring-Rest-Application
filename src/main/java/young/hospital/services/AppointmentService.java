@@ -60,4 +60,8 @@ public class AppointmentService {
     public Set<Appointment> getAppointmentsByPatientId(Long id) {
         return new HashSet<>(appointmentRepository.getAppointmentsByPatientId(id));
     }
+
+    public Set<Appointment> getAppointmentsByDoctorId(Long id){
+        return new HashSet<>(appointmentRepository.getAppointmentsByDoctorId(id));
+    }
 }

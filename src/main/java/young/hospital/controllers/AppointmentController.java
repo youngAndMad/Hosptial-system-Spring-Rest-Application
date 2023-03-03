@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import young.hospital.dto.AppointmentDTO;
+import young.hospital.dto.DoctorDTO;
 import young.hospital.dto.PatientComplaint;
 import young.hospital.exceptions.AppointmentException;
 import young.hospital.exceptions.PatientComplaintException;
@@ -18,6 +19,7 @@ import young.hospital.utils.Converter;
 import young.hospital.utils.ErrorResponse;
 import young.hospital.validate.AppointmentValidate;
 
+import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,14 +39,14 @@ public class AppointmentController {
     @GetMapping("/add")
     public ResponseEntity<?> requestToRegisterAppointment(@RequestBody @Valid PatientComplaint patientComplaint, BindingResult bindingResult) {
         appointmentValidate.validate(patientComplaint, bindingResult);
-
         if (bindingResult.hasErrors()) {
             throw new PatientComplaintException(toErrorResponse(bindingResult));
         }
         if (doctorService.getByRole(DoctorRole.valueOf(patientComplaint.getDoctorRole())).isEmpty()) {
             throw new PatientComplaintException("at the moment our hospital does not have free doctors in the referral " + patientComplaint.getDoctorRole());
         }
-        return ResponseEntity.ok().header("doctor properties" ,toDoctorDTO(appointmentService.getRecommendedDoctor(patientComplaint)).toString()).build();
+        DoctorDTO recommendedDoctor = toDoctorDTO(appointmentService.getRecommendedDoctor(patientComplaint));
+        return  ResponseEntity.ok(recommendedDoctor.toString() + " expected total sum of appointment: " + DoctorRole.valueOf(recommendedDoctor.getRole()).getPrice()  * recommendedDoctor.getExperience() * 0.5 );
     }
 
     @PostMapping("/add")
@@ -55,7 +57,7 @@ public class AppointmentController {
                     System.currentTimeMillis()
             ));
         }
-        appointmentService. save(patientComplaint);
+        appointmentService.save(patientComplaint);
         return ResponseEntity.ok( "appointment registered");
     }
 
@@ -66,13 +68,23 @@ public class AppointmentController {
     }
 
     @PostMapping("/save/{id}")
-    public ResponseEntity<HttpStatus> attachResultToAppointment(@PathVariable Long id , @RequestParam String result){
+    public ResponseEntity<HttpStatus> attachResultToAppointment(@PathVariable Long id , @RequestBody String result){
        Appointment appointment = appointmentService.getAppointmentById(id);
        if (appointment == null){
            throw new AppointmentException("invalid id property for appointment");
        }
        appointmentService.saveResultsOfAppointment(appointment , result);
        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/patient/{id}")
+    public ResponseEntity<?> getPatientAppointments(@PathVariable Long id){
+        return new ResponseEntity<>(appointmentService.getAppointmentsByPatientId(id) , HttpStatus.OK);
+    }
+
+    @GetMapping("/doctor/{id}")
+    public ResponseEntity<?> getDoctorAppointments(@PathVariable Long id){
+        return new ResponseEntity<>(appointmentService.getAppointmentsByDoctorId(id) , HttpStatus.OK);
     }
 
 

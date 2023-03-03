@@ -28,7 +28,6 @@ import static young.hospital.utils.Converter.*;
 public class PatientController {
     private final PatientService patientService;
     private final PatientValidate patientValidate;
-    private  final Converter converter;
 
     @PostMapping("/add")
     public ResponseEntity<?> add(@RequestBody @Valid PatientDTO patientDTO, BindingResult bindingResult) {
@@ -38,14 +37,21 @@ public class PatientController {
             throw new PatientException(toErrorResponse(bindingResult));
         }
         patientService.add(patient);
-        return ResponseEntity.ok()
-                .header("response", "patient was added").
-                body(HttpStatus.OK);
+        return new  ResponseEntity<>(new Response("patient was added") , HttpStatus.OK);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<PatientDTO>> getAll() {
-        return new ResponseEntity<>(converter.toPatientDTOList(patientService.getAll()), HttpStatus.OK);
+        return new ResponseEntity<>(patientService.getAll().stream().map(Converter::toPatientDTO).toList(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public PatientDTO getByID(@PathVariable Long id){
+        Patient patient = patientService.getById(id);
+        if (patient == null) {
+            throw new PatientException("patient by id does not found");
+        }
+        return toPatientDTO(patient);
     }
 
     @DeleteMapping("/{id}")
@@ -57,6 +63,7 @@ public class PatientController {
         patientService.delete(id);
         return new ResponseEntity<>(new Response("patient was deleted"), HttpStatus.OK);
     }
+
 
     @ExceptionHandler
     public ResponseEntity<?> exceptionHandler(PatientException exception) {

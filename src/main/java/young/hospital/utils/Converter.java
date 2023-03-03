@@ -2,7 +2,6 @@ package young.hospital.utils;
 
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -16,8 +15,13 @@ import young.hospital.model.DoctorRole;
 import young.hospital.model.Patient;
 import young.hospital.services.AppointmentService;
 
+import javax.print.Doc;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -60,30 +64,35 @@ public class Converter {
         Appointment appointment = new Appointment();
         appointment.setPrice(DoctorRole.valueOf(patientComplaint.getDoctorRole()).getPrice());
         appointment.setPatient(patient);
-        appointment.setDate(LocalDate.of(2023, 3, 02)); // TODO
-        appointment.setPatientСomplaints(patientComplaint.getPatientСomplaints());
+        appointment.setDate(LocalDate.of(2023, 3, 2)); // TODO
+        appointment.setPatientComplaints(patientComplaint.getPatientСomplaints());
         appointment.setPrice((int) (doctor.getExperience() * doctor.getRole().getPrice() * 0.5));
         appointment.setDoctor(doctor);
         return appointment;
     }
 
     public static AppointmentDTO toAppointmentDTO(Appointment appointment) {
-        AppointmentDTO appointmentDTO = new AppointmentDTO();
-        appointmentDTO.setDate(appointmentDTO.getDate());
-        appointmentDTO.setResult(appointment.getResult());
-        appointmentDTO.setPatientFullName(appointment.getPatient().getName() + " " + appointment.getPatient().getSurname());
-        appointmentDTO.setDoctorFullName(appointment.getDoctor().getName() + " " + appointment.getDoctor().getSurname());
-        appointmentDTO.setPrice(appointment.getPrice());
-        appointmentDTO.setPatientСomplaints(appointment.getPatientСomplaints());
-        return appointmentDTO;
+            AppointmentDTO appointmentDTO = new AppointmentDTO();
+            System.out.println(appointment.getPatient());
+            System.out.println(appointment.getDoctor());
+            appointmentDTO.setDate(appointment.getDate());
+            appointmentDTO.setResult(appointment.getResult());
+            appointmentDTO.setPatientFullName(appointment.getPatient().getName() + " " + appointment.getPatient().getSurname());
+            appointmentDTO.setDoctorFullName(appointment.getDoctor().getName() + " " + appointment.getDoctor().getSurname());
+            appointmentDTO.setPrice(appointment.getPrice());
+            appointmentDTO.setPatientСomplaints(appointment.getPatientComplaints());
+           return appointmentDTO;
     }
 
-    public  List<PatientDTO> toPatientDTOList(List<Patient> patients) {
-        patients.forEach(patient -> patient.setAppointments(appointmentService.getAppointmentsByPatientId(patient.getId())));
-        patients.forEach(patient -> patient.getAppointments().stream().map(Converter::toAppointmentDTO));
-        return patients.stream().map(Converter::toPatientDTO).collect(Collectors.toList());
+    public static Doctor updatedDoctor(Doctor doctor , DoctorDTO doctorDTO){
+        doctor.setName(doctorDTO.getName());
+        doctor.setSurname(doctorDTO.getSurname());
+        doctor.setGender(doctorDTO.getGender());
+        doctor.setAge(doctorDTO.getAge());
+        doctor.setExperience(doctorDTO.getExperience());
+        doctor.setUpdatedAt(LocalDateTime.now());
+        doctor.setRole(DoctorRole.valueOf(doctorDTO.getRole()));
+        return doctor;
     }
-
-
 
 }

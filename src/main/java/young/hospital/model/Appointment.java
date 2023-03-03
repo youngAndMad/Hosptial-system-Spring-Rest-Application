@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Table(name = "appointment")
@@ -36,9 +37,19 @@ public class Appointment {
 
     @Column(name = "patient_complaints")
     @NotBlank
-    private String patientСomplaints;
+    private String patientComplaints;
 
     @Column(name = "price")
     private int price;
 
+    @Column(name = "registered_at")
+    private LocalDateTime registeredAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist(){
+        this.registeredAt = LocalDateTime.now();
+    }
 }

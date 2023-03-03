@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import young.hospital.dto.DoctorDTO;
 import young.hospital.model.Doctor;
 import young.hospital.model.DoctorRole;
 
@@ -20,10 +21,10 @@ public class DoctorValidate implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        Doctor doctor = (Doctor) target;
+        DoctorDTO doctor = (DoctorDTO) target;
         if (doctor.getRole() == null ||
-                Arrays.stream(DoctorRole.values()).
-                        filter(doctorRole -> doctorRole.equals(doctor.getRole())).findAny().isEmpty()) {
+                Arrays.stream(DoctorRole.values())
+                        .noneMatch(doctorRole -> String.valueOf(doctorRole).equals(doctor.getRole()))) {
             errors.rejectValue("role", "invalid role property");
         }
         if (doctor.getAge() < 20) {
@@ -32,6 +33,11 @@ public class DoctorValidate implements Validator {
         if (doctor.getExperience() < 2) {
             errors.rejectValue("experience", "doctor experience should be more than 2 years");
         }
+        if (doctor.getGender().compareToIgnoreCase("MALE")!=0 ||
+                doctor.getGender().compareToIgnoreCase("FEMALE")!=0){
+            errors.rejectValue("gender" , "invalid gender type");
+        }
     }
+
 }
 

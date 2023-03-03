@@ -46,6 +46,9 @@ public class Doctor {
     @Column(name = "added_at")
     private LocalDateTime addedAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @OneToMany(mappedBy = "doctor" , cascade = CascadeType.ALL)
     private Set<Appointment> appointments;
 

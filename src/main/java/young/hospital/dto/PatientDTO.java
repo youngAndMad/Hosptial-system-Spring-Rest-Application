@@ -1,18 +1,8 @@
 package young.hospital.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.collection.spi.PersistentSet;
-import young.hospital.model.Appointment;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -31,6 +21,5 @@ public class PatientDTO {
     @NotBlank
     private String gender;
 
-    private Set<AppointmentDTO> appointments;
 }
 

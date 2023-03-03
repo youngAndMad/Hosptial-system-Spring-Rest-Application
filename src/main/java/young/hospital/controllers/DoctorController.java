@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import young.hospital.dto.DoctorDTO;
 import young.hospital.exceptions.DoctorException;
 import young.hospital.model.Doctor;
+import young.hospital.model.DoctorRole;
 import young.hospital.services.DoctorService;
 import young.hospital.utils.Converter;
 import young.hospital.utils.ErrorResponse;
 import young.hospital.utils.Response;
 import young.hospital.validate.DoctorValidate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,19 +45,51 @@ public class DoctorController {
 
     @GetMapping("/all")
     public List<DoctorDTO> getAll() {
-        return doctorService.getAll().stream().map(Converter::toDoctorDTO).collect(Collectors.toList());
+        return doctorService.getAll().stream().map(Converter::toDoctorDTO).toList();
+    }
+
+    @GetMapping("/{id}")
+    public DoctorDTO getById(@PathVariable Long id){
+        Doctor doctor = doctorService.getById(id);
+        if (doctor == null){
+            throw new DoctorException("doctor by id does not found");
+        }
+        return toDoctorDTO(doctor);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
         Doctor doctor = doctorService.getById(id);
         if(doctor == null){
             throw new DoctorException("doctor does not found. Incorrect id");
         }
         doctorService.deleteById(id);
-        return ResponseEntity
-                .ok()
-                .body(new Response("doctor " + doctor.getName() + " " + doctor.getSurname() + " was deleted"));
+        return ResponseEntity.ok("doctor " + doctor.getName() + " " + doctor.getSurname() + " was deleted");
+    }
+
+    @GetMapping("/role/{role}")
+    public List<DoctorDTO> getDoctorsByRole(@PathVariable String role){
+        if ( Arrays.stream(DoctorRole.values())
+                        .noneMatch(doctorRole -> String.valueOf(doctorRole).equals(role))){
+            throw new DoctorException("invalid type of role for filtering");
+        }
+        return doctorService.getByRole(DoctorRole.valueOf(role)).stream().map(Converter::toDoctorDTO).toList();
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDoctor(@PathVariable Long id , @RequestBody @Valid DoctorDTO doctorDTO ,
+                                          BindingResult bindingResult){
+        Doctor doctor = doctorService.getById(id);
+        if (doctor == null){
+            throw new DoctorException("doctor does not found. Incorrect id");
+        }
+        doctorValidate.validate(doctorDTO, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new DoctorException(toErrorResponse(bindingResult));
+        }
+        return new ResponseEntity<>(toDoctorDTO(doctorService.save(updatedDoctor(doctor,doctorDTO))) , HttpStatus.OK);
+
     }
 
     @ExceptionHandler
