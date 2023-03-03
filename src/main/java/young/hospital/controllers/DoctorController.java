@@ -13,12 +13,10 @@ import young.hospital.model.DoctorRole;
 import young.hospital.services.DoctorService;
 import young.hospital.utils.Converter;
 import young.hospital.utils.ErrorResponse;
-import young.hospital.utils.Response;
 import young.hospital.validate.DoctorValidate;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static young.hospital.utils.Converter.*;
 

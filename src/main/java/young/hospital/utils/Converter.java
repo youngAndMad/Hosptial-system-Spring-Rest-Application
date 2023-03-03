@@ -15,14 +15,9 @@ import young.hospital.model.DoctorRole;
 import young.hospital.model.Patient;
 import young.hospital.services.AppointmentService;
 
-import javax.print.Doc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -95,4 +90,12 @@ public class Converter {
         return doctor;
     }
 
+    public static Patient updatedPatient(Patient patient , PatientDTO patientDTO){
+        patient.setGender(patientDTO.getGender());
+        patient.setAge(patientDTO.getAge());
+        patient.setUpdatedAt(LocalDateTime.now());
+        patient.setSurname(patientDTO.getSurname());
+        patient.setName(patientDTO.getName());
+        return patient;
+    }
 }

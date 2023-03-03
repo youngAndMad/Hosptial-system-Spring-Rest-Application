@@ -9,6 +9,7 @@ import young.hospital.model.Doctor;
 import young.hospital.model.DoctorRole;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @Component
 @AllArgsConstructor
@@ -36,6 +37,8 @@ public class DoctorValidate implements Validator {
         if (doctor.getGender().compareToIgnoreCase("MALE")!=0 ||
                 doctor.getGender().compareToIgnoreCase("FEMALE")!=0){
             errors.rejectValue("gender" , "invalid gender type");
+        }else {
+            doctor.setGender(doctor.getGender().toUpperCase(Locale.ROOT));
         }
     }
 

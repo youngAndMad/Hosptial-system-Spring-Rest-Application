@@ -10,16 +10,18 @@ import young.hospital.dto.AppointmentDTO;
 import young.hospital.dto.DoctorDTO;
 import young.hospital.dto.PatientComplaint;
 import young.hospital.exceptions.AppointmentException;
+import young.hospital.exceptions.DoctorException;
 import young.hospital.exceptions.PatientComplaintException;
+import young.hospital.exceptions.PatientException;
 import young.hospital.model.Appointment;
 import young.hospital.model.DoctorRole;
 import young.hospital.services.AppointmentService;
 import young.hospital.services.DoctorService;
+import young.hospital.services.PatientService;
 import young.hospital.utils.Converter;
 import young.hospital.utils.ErrorResponse;
 import young.hospital.validate.AppointmentValidate;
 
-import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +36,11 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final DoctorService doctorService;
+    private final PatientService patientService;
     private final AppointmentValidate appointmentValidate;
 
     @GetMapping("/add")
-    public ResponseEntity<?> requestToRegisterAppointment(@RequestBody @Valid PatientComplaint patientComplaint, BindingResult bindingResult) {
+    public ResponseEntity<DoctorDTO> requestToRegisterAppointment(@RequestBody @Valid PatientComplaint patientComplaint, BindingResult bindingResult) {
         appointmentValidate.validate(patientComplaint, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new PatientComplaintException(toErrorResponse(bindingResult));
@@ -46,7 +49,10 @@ public class AppointmentController {
             throw new PatientComplaintException("at the moment our hospital does not have free doctors in the referral " + patientComplaint.getDoctorRole());
         }
         DoctorDTO recommendedDoctor = toDoctorDTO(appointmentService.getRecommendedDoctor(patientComplaint));
-        return  ResponseEntity.ok(recommendedDoctor.toString() + " expected total sum of appointment: " + DoctorRole.valueOf(recommendedDoctor.getRole()).getPrice()  * recommendedDoctor.getExperience() * 0.5 );
+        return  ResponseEntity.ok().header("expected price" ,
+                String.valueOf(DoctorRole.valueOf(recommendedDoctor.getRole()).getPrice()
+                        * recommendedDoctor.getExperience() * 0.5))
+                .body(recommendedDoctor);
     }
 
     @PostMapping("/add")
@@ -79,11 +85,17 @@ public class AppointmentController {
 
     @GetMapping("/patient/{id}")
     public ResponseEntity<?> getPatientAppointments(@PathVariable Long id){
+        if (patientService.getById(id) == null){
+            throw new PatientException("patient by id does not found");
+        }
         return new ResponseEntity<>(appointmentService.getAppointmentsByPatientId(id) , HttpStatus.OK);
     }
 
     @GetMapping("/doctor/{id}")
     public ResponseEntity<?> getDoctorAppointments(@PathVariable Long id){
+         if (doctorService.getById(id) == null){
+            throw new DoctorException("doctor by id does not found");
+        }
         return new ResponseEntity<>(appointmentService.getAppointmentsByDoctorId(id) , HttpStatus.OK);
     }
 

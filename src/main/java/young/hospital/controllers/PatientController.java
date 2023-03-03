@@ -10,7 +10,6 @@ import young.hospital.dto.PatientDTO;
 import young.hospital.exceptions.PatientComplaintException;
 import young.hospital.exceptions.PatientException;
 import young.hospital.model.Patient;
-import young.hospital.services.AppointmentService;
 import young.hospital.services.PatientService;
 import young.hospital.utils.Converter;
 import young.hospital.utils.ErrorResponse;
@@ -18,7 +17,6 @@ import young.hospital.utils.Response;
 import young.hospital.validate.PatientValidate;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static young.hospital.utils.Converter.*;
 
@@ -43,6 +41,19 @@ public class PatientController {
     @GetMapping("/all")
     public ResponseEntity<List<PatientDTO>> getAll() {
         return new ResponseEntity<>(patientService.getAll().stream().map(Converter::toPatientDTO).toList(), HttpStatus.OK);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePatient(@PathVariable Long id , @RequestBody @Valid PatientDTO patientDTO,
+                                           BindingResult bindingResult){
+        Patient patient = patientService.getById(id);
+        if (patient == null){
+            throw new PatientException("patient by id does not found");
+        }
+        patientValidate.validate(patientDTO , bindingResult);
+        if (bindingResult.hasErrors()){
+            throw new PatientException(toErrorResponse(bindingResult));
+        }
+        return new ResponseEntity<>(toPatientDTO(patientService.add(updatedPatient(patient , patientDTO))) , HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/{id}")
