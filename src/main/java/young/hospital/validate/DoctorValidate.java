@@ -22,7 +22,7 @@ public class DoctorValidate implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        DoctorDTO doctor = (DoctorDTO) target;
+        Doctor doctor = (Doctor) target;
         if (doctor.getRole() == null ||
                 Arrays.stream(DoctorRole.values())
                         .noneMatch(doctorRole -> String.valueOf(doctorRole).equals(doctor.getRole()))) {
